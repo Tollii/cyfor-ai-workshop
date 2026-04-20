@@ -10,10 +10,15 @@
 
 # deps
 node_modules/
+dist/
 
 # env
 .env
 .env.production
+data/*.db
+data/*.db-journal
+data/*.db-shm
+data/*.db-wal
 
 # logs
 logs/
