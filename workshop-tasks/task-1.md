@@ -12,14 +12,16 @@ Rules:
 - create **one GitHub issue per part** in each task file
 - create **all** of those issues up front, not just the ones from this file
 - use clear issue titles
-- keep the issue bodies intentionally lightweight and a bit open-ended
-- include just enough context to understand the problem, but do not fully specify the solution
-- leave room for later refinement into user stories and acceptance criteria
+- make the issue bodies reflect the relevant part of the markdown file
+- carry over the important context, requirements, and notes that are already written
+- do not add extra specificity that is not in the markdown
+- if a later task is intentionally vague in the markdown, keep that vagueness in the issue as well
+- leave room for later refinement into user stories, acceptance criteria, and business rules where that is part of the workshop
 - create a workshop milestone and use it to group the issues
 - add useful labels so progress is easy to scan in GitHub
 - link each issue back to the source task file and part
 
-Think of these issues as backlog seeds, not final implementation specs.
+The goal is for the GitHub issues to mirror the workshop task files closely, while preserving any ambiguity that is intentionally part of the later exercises.
 
 ## Part 2: Create `AGENTS.md`
 
