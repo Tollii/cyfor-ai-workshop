@@ -23,12 +23,24 @@ export default function App() {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editCategory, setEditCategory] = useState<string>("general");
+  const [searchText, setSearchText] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("");
 
   const queryClient = useQueryClient();
-  const refreshResources = () =>
-    queryClient.invalidateQueries({ queryKey: getGetResourcesQueryKey() });
 
-  const resourcesQuery = useGetResources();
+  const filterParams = {
+    ...(searchText.trim() ? { search: searchText.trim() } : {}),
+    ...(filterCategory
+      ? { category: filterCategory as typeof Category[keyof typeof Category] }
+      : {}),
+  };
+
+  const refreshResources = () =>
+    queryClient.invalidateQueries({
+      queryKey: getGetResourcesQueryKey(filterParams),
+    });
+
+  const resourcesQuery = useGetResources(filterParams);
   const createMutation = usePostResources({
     mutation: {
       onSuccess: async () => {
@@ -65,7 +77,8 @@ export default function App() {
       data: {
         title: trimmedTitle,
         description: description.trim() || undefined,
-        category: (category as typeof Category[keyof typeof Category]) || undefined,
+        category:
+          (category as typeof Category[keyof typeof Category]) || undefined,
       },
     });
   };
@@ -169,6 +182,27 @@ export default function App() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="text-sm font-medium text-slate-700">Resources</h2>
+
+          <div className="mt-3 flex gap-3">
+            <input
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search resources..."
+              className="flex-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-slate-500"
+            />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-slate-500"
+            >
+              <option value="">All categories</option>
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {categoryLabel(cat)}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {resourcesQuery.isPending && (
             <p className="mt-3 text-sm text-slate-600">Loading resources...</p>
@@ -277,7 +311,11 @@ export default function App() {
                 )}
               </ul>
             ) : (
-              <p className="mt-3 text-sm text-slate-600">No resources yet.</p>
+              <p className="mt-3 text-sm text-slate-600">
+                {searchText.trim() || filterCategory
+                  ? "No resources match your filters."
+                  : "No resources yet."}
+              </p>
             )
           ) : null}
         </section>

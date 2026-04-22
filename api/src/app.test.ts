@@ -91,6 +91,63 @@ describe('GET /resources', () => {
       updatedAt: '2024-01-01T00:00:00.000Z'
     })
   })
+
+  it('passes search param to prisma query', async () => {
+    prismaMock.resource.findMany.mockResolvedValue([])
+
+    const res = await request('GET', '/resources?search=conference')
+    expect(res.status).toBe(200)
+
+    expect(prismaMock.resource.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            { title: { contains: 'conference' } },
+            { description: { contains: 'conference' } }
+          ]
+        })
+      })
+    )
+  })
+
+  it('passes category filter to prisma query', async () => {
+    prismaMock.resource.findMany.mockResolvedValue([])
+
+    const res = await request('GET', '/resources?category=room')
+    expect(res.status).toBe(200)
+
+    expect(prismaMock.resource.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          category: 'room'
+        })
+      })
+    )
+  })
+
+  it('combines search and category filters', async () => {
+    prismaMock.resource.findMany.mockResolvedValue([])
+
+    const res = await request('GET', '/resources?search=large&category=room')
+    expect(res.status).toBe(200)
+
+    expect(prismaMock.resource.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            { title: { contains: 'large' } },
+            { description: { contains: 'large' } }
+          ],
+          category: 'room'
+        })
+      })
+    )
+  })
+
+  it('rejects invalid category filter', async () => {
+    const res = await request('GET', '/resources?category=bogus')
+    expect(res.status).toBe(400)
+  })
 })
 
 describe('POST /resources', () => {

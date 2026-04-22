@@ -197,9 +197,28 @@
         "tags": [
           "Resources"
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "conference"
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "required": false,
+            "name": "category",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List all resources",
+            "description": "List all resources, optionally filtered by search text and/or category",
             "content": {
               "application/json": {
                 "schema": {
