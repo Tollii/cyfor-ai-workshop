@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
+import { Prisma } from '@prisma/client'
 import { prisma } from './db.js'
 
 const RootResponseSchema = z.object({
@@ -171,6 +172,9 @@ const updateResourceRoute = createRoute({
           schema: ResourceSchema
         }
       }
+    },
+    404: {
+      description: 'Resource not found'
     }
   }
 })
@@ -246,7 +250,7 @@ app.openapi(healthRoute, (c) => {
 app.openapi(listResourcesRoute, async (c) => {
   const { search, category } = c.req.valid('query')
 
-  const where: Record<string, unknown> = {}
+  const where: Prisma.ResourceWhereInput = {}
 
   if (search) {
     where.OR = [
@@ -287,6 +291,11 @@ app.openapi(createResourceRoute, async (c) => {
 app.openapi(updateResourceRoute, async (c) => {
   const { id } = c.req.valid('param')
   const data = c.req.valid('json')
+
+  const existing = await prisma.resource.findUnique({ where: { id } })
+  if (!existing) {
+    return c.body(null, 404)
+  }
 
   const resource = await prisma.resource.update({
     where: { id },

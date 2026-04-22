@@ -435,7 +435,7 @@ export const putResourcesId = (
 
 
 
-export const getPutResourcesIdMutationOptions = <TError = ErrorType<unknown>,
+export const getPutResourcesIdMutationOptions = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putResourcesId>>, TError,{id: number;data: UpdateResource}, TContext>, }
 ): UseMutationOptions<Awaited<ReturnType<typeof putResourcesId>>, TError,{id: number;data: UpdateResource}, TContext> => {
 
@@ -464,9 +464,9 @@ const {mutation: mutationOptions} = options ?
 
     export type PutResourcesIdMutationResult = NonNullable<Awaited<ReturnType<typeof putResourcesId>>>
     export type PutResourcesIdMutationBody = UpdateResource
-    export type PutResourcesIdMutationError = ErrorType<unknown>
+    export type PutResourcesIdMutationError = ErrorType<void>
 
-    export const usePutResourcesId = <TError = ErrorType<unknown>,
+    export const usePutResourcesId = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putResourcesId>>, TError,{id: number;data: UpdateResource}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putResourcesId>>,

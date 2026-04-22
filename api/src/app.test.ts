@@ -12,6 +12,7 @@ const mockResource = {
 const prismaMock = {
   resource: {
     findMany: vi.fn(),
+    findUnique: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     deleteMany: vi.fn()
@@ -218,6 +219,7 @@ describe('POST /resources', () => {
 describe('PUT /resources/:id', () => {
   it('updates a resource', async () => {
     const updated = { ...mockResource, title: 'Updated Room' }
+    prismaMock.resource.findUnique.mockResolvedValue(mockResource)
     prismaMock.resource.update.mockResolvedValue(updated)
 
     const res = await request('PUT', '/resources/1', {
@@ -235,6 +237,7 @@ describe('PUT /resources/:id', () => {
 
   it('updates only description', async () => {
     const updated = { ...mockResource, description: 'New description' }
+    prismaMock.resource.findUnique.mockResolvedValue(mockResource)
     prismaMock.resource.update.mockResolvedValue(updated)
 
     const res = await request('PUT', '/resources/1', {
@@ -247,6 +250,7 @@ describe('PUT /resources/:id', () => {
 
   it('updates category', async () => {
     const updated = { ...mockResource, category: 'equipment' }
+    prismaMock.resource.findUnique.mockResolvedValue(mockResource)
     prismaMock.resource.update.mockResolvedValue(updated)
 
     const res = await request('PUT', '/resources/1', {
@@ -268,6 +272,16 @@ describe('PUT /resources/:id', () => {
       title: 'Test'
     })
     expect(res.status).toBe(400)
+  })
+
+  it('returns 404 for non-existent resource', async () => {
+    prismaMock.resource.findUnique.mockResolvedValue(null)
+
+    const res = await request('PUT', '/resources/999', {
+      title: 'Ghost'
+    })
+    expect(res.status).toBe(404)
+    expect(prismaMock.resource.update).not.toHaveBeenCalled()
   })
 })
 
