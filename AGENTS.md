@@ -20,6 +20,7 @@ Use the existing npm scripts — do not introduce new tooling.
 | `npm run build` | Build all workspaces |
 | `npm run typecheck` | Type-check all workspaces |
 | `npm run generate` | Regenerate Prisma client, OpenAPI spec, and Orval API client |
+| `npm test` | Run tests across all workspaces |
 
 ## Key rules
 
