@@ -472,7 +472,7 @@ const {mutation: mutationOptions} = options ?
       return useMutation(getDeleteItemsIdMutationOptions(options), queryClient);
     }
 
-export const putItemsId = (
+export const patchItemsId = (
     id: number,
     updateItem: UpdateItem,
  signal?: AbortSignal
@@ -480,7 +480,7 @@ export const putItemsId = (
 
 
       return customClient<Item>(
-      {url: `/items/${id}`, method: 'PUT',
+      {url: `/items/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateItem, signal
     },
@@ -489,11 +489,11 @@ export const putItemsId = (
 
 
 
-export const getPutItemsIdMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putItemsId>>, TError,{id: number;data: UpdateItem}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putItemsId>>, TError,{id: number;data: UpdateItem}, TContext> => {
+export const getPatchItemsIdMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchItemsId>>, TError,{id: number;data: UpdateItem}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchItemsId>>, TError,{id: number;data: UpdateItem}, TContext> => {
 
-const mutationKey = ['putItemsId'];
+const mutationKey = ['patchItemsId'];
 const {mutation: mutationOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -503,10 +503,10 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putItemsId>>, {id: number;data: UpdateItem}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchItemsId>>, {id: number;data: UpdateItem}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  putItemsId(id,data,)
+          return  patchItemsId(id,data,)
         }
 
 
@@ -516,17 +516,17 @@ const {mutation: mutationOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type PutItemsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putItemsId>>>
-    export type PutItemsIdMutationBody = UpdateItem
-    export type PutItemsIdMutationError = ErrorType<unknown>
+    export type PatchItemsIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchItemsId>>>
+    export type PatchItemsIdMutationBody = UpdateItem
+    export type PatchItemsIdMutationError = ErrorType<void>
 
-    export const usePutItemsId = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putItemsId>>, TError,{id: number;data: UpdateItem}, TContext>, }
+    export const usePatchItemsId = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchItemsId>>, TError,{id: number;data: UpdateItem}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof putItemsId>>,
+        Awaited<ReturnType<typeof patchItemsId>>,
         TError,
         {id: number;data: UpdateItem},
         TContext
       > => {
-      return useMutation(getPutItemsIdMutationOptions(options), queryClient);
+      return useMutation(getPatchItemsIdMutationOptions(options), queryClient);
     }

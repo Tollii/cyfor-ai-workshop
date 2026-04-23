@@ -4,7 +4,7 @@ import {
   useDeleteItemsId,
   useGetItems,
   usePostItems,
-  usePutItemsId,
+  usePatchItemsId,
   type Item,
 } from "./api";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ export default function App() {
       onSuccess: refreshItems,
     },
   });
-  const updateItemMutation = usePutItemsId({
+  const updateItemMutation = usePatchItemsId({
     mutation: {
       onSuccess: async () => {
         setEditing(null);
@@ -218,6 +218,9 @@ export default function App() {
                           className="rounded-md border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-slate-500 text-slate-700"
                         >
                           <option value="">Type (optional)</option>
+                          {!RESOURCE_TYPES.includes(editing.type) && editing.type ? (
+                            <option value={editing.type}>{editing.type} (current)</option>
+                          ) : null}
                           {RESOURCE_TYPES.map((t) => (
                             <option key={t} value={t}>
                               {t}

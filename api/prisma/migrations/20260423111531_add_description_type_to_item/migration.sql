@@ -15,7 +15,7 @@ CREATE TABLE "new_Item" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-INSERT INTO "new_Item" ("createdAt", "id", "title") SELECT "createdAt", "id", "title" FROM "Item";
+INSERT INTO "new_Item" ("createdAt", "updatedAt", "id", "title") SELECT "createdAt", CURRENT_TIMESTAMP, "id", "title" FROM "Item";
 DROP TABLE "Item";
 ALTER TABLE "new_Item" RENAME TO "Item";
 PRAGMA foreign_keys=ON;

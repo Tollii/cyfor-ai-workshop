@@ -254,7 +254,7 @@
           }
         }
       },
-      "put": {
+      "patch": {
         "tags": [
           "Items"
         ],
@@ -291,6 +291,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Item not found"
           }
         }
       }

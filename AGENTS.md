@@ -72,6 +72,7 @@ The API serves:
 - `GET /health`
 - `GET /items`
 - `POST /items`
+- `PATCH /items/{id}`
 - `DELETE /items/{id}`
 - `GET /openapi.json`
 

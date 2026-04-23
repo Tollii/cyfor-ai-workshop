@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
+import { Prisma } from '@prisma/client'
 import { prisma } from './db.js'
 
 const RootResponseSchema = z.object({
@@ -135,7 +136,7 @@ const deleteItemRoute = createRoute({
 })
 
 const updateItemRoute = createRoute({
-  method: 'put',
+  method: 'patch',
   path: '/items/{id}',
   tags: ['Items'],
   request: {
@@ -157,6 +158,9 @@ const updateItemRoute = createRoute({
           schema: ItemSchema
         }
       }
+    },
+    404: {
+      description: 'Item not found'
     }
   }
 })
@@ -223,8 +227,8 @@ app.openapi(createItemRoute, async (c) => {
   const item = await prisma.item.create({
     data: {
       title,
-      description: description ?? null,
-      type: type ?? null
+      description,
+      type
     }
   })
 
@@ -247,16 +251,23 @@ app.openapi(updateItemRoute, async (c) => {
   const { id } = c.req.valid('param')
   const body = c.req.valid('json')
 
-  const item = await prisma.item.update({
-    where: { id },
-    data: {
-      ...(body.title !== undefined && { title: body.title }),
-      ...(body.description !== undefined && { description: body.description }),
-      ...(body.type !== undefined && { type: body.type })
-    }
-  })
+  try {
+    const item = await prisma.item.update({
+      where: { id },
+      data: {
+        ...(body.title !== undefined && { title: body.title }),
+        ...(body.description !== undefined && { description: body.description }),
+        ...(body.type !== undefined && { type: body.type })
+      }
+    })
 
-  return c.json(toItemResponse(item), 200)
+    return c.json(toItemResponse(item), 200)
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return c.json({ error: 'Item not found' }, 404)
+    }
+    throw e
+  }
 })
 
 export type AppType = typeof app
