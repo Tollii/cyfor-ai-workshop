@@ -47,9 +47,26 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 120,
-            "example": "Build a workshop API"
+            "example": "Conference room A"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "Main conference room on the 2nd floor"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60,
+            "example": "Room"
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time",
             "example": "2024-01-01T00:00:00.000Z"
@@ -58,7 +75,10 @@
         "required": [
           "id",
           "title",
-          "createdAt"
+          "description",
+          "type",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "ItemListResponse": {
@@ -82,12 +102,45 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 120,
-            "example": "Build a workshop API"
+            "example": "Conference room A"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Main conference room on the 2nd floor"
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 60,
+            "example": "Room"
           }
         },
         "required": [
           "title"
         ]
+      },
+      "UpdateItem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "example": "Conference room A"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "Main conference room on the 2nd floor"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 60,
+            "example": "Room"
+          }
+        }
       }
     },
     "parameters": {}
@@ -198,6 +251,46 @@
         "responses": {
           "204": {
             "description": "Remove a persisted item"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Items"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItem"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update a persisted item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
           }
         }
       }

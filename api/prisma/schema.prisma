@@ -8,7 +8,10 @@ datasource db {
 }
 
 model Item {
-  id        Int      @id @default(autoincrement())
-  title     String
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
