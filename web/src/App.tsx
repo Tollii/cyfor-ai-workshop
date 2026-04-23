@@ -29,13 +29,16 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   cancelled: { bg: "#f9fafb", text: "#6b7280" },
 };
 
+type StatusFilter = "all" | "pending" | "confirmed" | "cancelled";
+const STATUS_FILTER_KEYS: StatusFilter[] = ["all", "pending", "confirmed", "cancelled"];
+
 function ItemReservations({ item }: { item: Item }) {
   const queryClient = useQueryClient();
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const refreshReservations = () =>
     queryClient.invalidateQueries({ queryKey: getGetItemsIdReservationsQueryKey(item.id) });
@@ -149,7 +152,7 @@ function ItemReservations({ item }: { item: Item }) {
       {/* Status filter */}
       {!reservationsQuery.isPending && reservations.length > 0 && (
         <div className="flex gap-1 flex-wrap">
-          {(["all", "pending", "confirmed", "cancelled"] as const).map((key) => {
+          {STATUS_FILTER_KEYS.map((key) => {
             const label = key === "all" ? "Alle" : (STATUS_LABELS[key] ?? key);
             const isActive = statusFilter === key;
             return (
@@ -157,6 +160,7 @@ function ItemReservations({ item }: { item: Item }) {
                 key={key}
                 type="button"
                 onClick={() => setStatusFilter(key)}
+                aria-pressed={isActive}
                 className="rounded-none border px-2 py-0.5 text-xs font-medium uppercase tracking-wider"
                 style={
                   isActive
