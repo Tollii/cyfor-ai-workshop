@@ -97,6 +97,64 @@ export interface UpdateItem {
   type?: string | null;
 }
 
+export type ReservationStatus = typeof ReservationStatus[keyof typeof ReservationStatus];
+
+
+export const ReservationStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  cancelled: 'cancelled',
+} as const;
+
+export interface Reservation {
+  id: number;
+  itemId: number;
+  startAt: string;
+  endAt: string;
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  purpose: string;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  notes: string | null;
+  status: ReservationStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReservationListResponse {
+  reservations: Reservation[];
+}
+
+export interface CreateReservation {
+  startAt: string;
+  endAt: string;
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  purpose: string;
+  /** @maxLength 500 */
+  notes?: string;
+}
+
+export type UpdateReservationStatus = typeof UpdateReservationStatus[keyof typeof UpdateReservationStatus];
+
+
+export const UpdateReservationStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  cancelled: 'cancelled',
+} as const;
+
+export interface UpdateReservation {
+  status: UpdateReservationStatus;
+}
+
 export type GetItemsParams = {
 search?: string;
 };
@@ -534,4 +592,209 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getPatchItemsIdMutationOptions(options), queryClient);
+    }
+
+export const getItemsIdReservations = (
+    id: number,
+ signal?: AbortSignal
+) => {
+
+
+      return customClient<ReservationListResponse>(
+      {url: `/items/${id}/reservations`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetItemsIdReservationsQueryKey = (id: number,) => {
+    return [
+    `/items/${id}/reservations`
+    ] as const;
+    }
+
+
+export const getGetItemsIdReservationsQueryOptions = <TData = Awaited<ReturnType<typeof getItemsIdReservations>>, TError = ErrorType<void>>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetItemsIdReservationsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getItemsIdReservations>>> = ({ signal }) => getItemsIdReservations(id, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetItemsIdReservationsQueryResult = NonNullable<Awaited<ReturnType<typeof getItemsIdReservations>>>
+export type GetItemsIdReservationsQueryError = ErrorType<void>
+
+
+export function useGetItemsIdReservations<TData = Awaited<ReturnType<typeof getItemsIdReservations>>, TError = ErrorType<void>>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getItemsIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getItemsIdReservations>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetItemsIdReservations<TData = Awaited<ReturnType<typeof getItemsIdReservations>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getItemsIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getItemsIdReservations>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetItemsIdReservations<TData = Awaited<ReturnType<typeof getItemsIdReservations>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetItemsIdReservations<TData = Awaited<ReturnType<typeof getItemsIdReservations>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItemsIdReservations>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetItemsIdReservationsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const postItemsIdReservations = (
+    id: number,
+    createReservation: CreateReservation,
+ signal?: AbortSignal
+) => {
+
+
+      return customClient<Reservation>(
+      {url: `/items/${id}/reservations`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createReservation, signal
+    },
+      );
+    }
+
+
+
+export const getPostItemsIdReservationsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postItemsIdReservations>>, TError,{id: number;data: CreateReservation}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postItemsIdReservations>>, TError,{id: number;data: CreateReservation}, TContext> => {
+
+const mutationKey = ['postItemsIdReservations'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postItemsIdReservations>>, {id: number;data: CreateReservation}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postItemsIdReservations(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostItemsIdReservationsMutationResult = NonNullable<Awaited<ReturnType<typeof postItemsIdReservations>>>
+    export type PostItemsIdReservationsMutationBody = CreateReservation
+    export type PostItemsIdReservationsMutationError = ErrorType<void>
+
+    export const usePostItemsIdReservations = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postItemsIdReservations>>, TError,{id: number;data: CreateReservation}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postItemsIdReservations>>,
+        TError,
+        {id: number;data: CreateReservation},
+        TContext
+      > => {
+      return useMutation(getPostItemsIdReservationsMutationOptions(options), queryClient);
+    }
+
+export const patchReservationsId = (
+    id: number,
+    updateReservation: UpdateReservation,
+ signal?: AbortSignal
+) => {
+
+
+      return customClient<Reservation>(
+      {url: `/reservations/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateReservation, signal
+    },
+      );
+    }
+
+
+
+export const getPatchReservationsIdMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchReservationsId>>, TError,{id: number;data: UpdateReservation}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchReservationsId>>, TError,{id: number;data: UpdateReservation}, TContext> => {
+
+const mutationKey = ['patchReservationsId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchReservationsId>>, {id: number;data: UpdateReservation}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  patchReservationsId(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchReservationsIdMutationResult = NonNullable<Awaited<ReturnType<typeof patchReservationsId>>>
+    export type PatchReservationsIdMutationBody = UpdateReservation
+    export type PatchReservationsIdMutationError = ErrorType<void>
+
+    export const usePatchReservationsId = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchReservationsId>>, TError,{id: number;data: UpdateReservation}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchReservationsId>>,
+        TError,
+        {id: number;data: UpdateReservation},
+        TContext
+      > => {
+      return useMutation(getPatchReservationsIdMutationOptions(options), queryClient);
     }

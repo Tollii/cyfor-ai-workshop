@@ -141,6 +141,133 @@
             "example": "Room"
           }
         }
+      },
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "itemId": {
+            "type": "integer",
+            "example": 1
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-01T08:00:00.000Z"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-01T10:00:00.000Z"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Team meeting"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500,
+            "example": "Please set up projector"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "cancelled"
+            ],
+            "example": "pending"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "itemId",
+          "startAt",
+          "endAt",
+          "purpose",
+          "notes",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ReservationListResponse": {
+        "type": "object",
+        "properties": {
+          "reservations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reservation"
+            }
+          }
+        },
+        "required": [
+          "reservations"
+        ]
+      },
+      "CreateReservation": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-01T08:00:00.000Z"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-01T10:00:00.000Z"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Team meeting"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Please set up projector"
+          }
+        },
+        "required": [
+          "startAt",
+          "endAt",
+          "purpose"
+        ]
+      },
+      "UpdateReservation": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "cancelled"
+            ],
+            "example": "confirmed"
+          }
+        },
+        "required": [
+          "status"
+        ]
       }
     },
     "parameters": {}
@@ -305,6 +432,138 @@
           },
           "404": {
             "description": "Item not found"
+          }
+        }
+      }
+    },
+    "/items/{id}/reservations": {
+      "get": {
+        "tags": [
+          "Reservations"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List reservations for an item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Reservations"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReservation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Create a reservation for an item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reservation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date range (end must be after start)"
+          },
+          "404": {
+            "description": "Item not found"
+          },
+          "409": {
+            "description": "Reservation overlaps with an existing active reservation"
+          }
+        }
+      }
+    },
+    "/reservations/{id}": {
+      "patch": {
+        "tags": [
+          "Reservations"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReservation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update reservation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reservation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reservation not found"
+          },
+          "409": {
+            "description": "Cannot cancel an already-cancelled reservation"
           }
         }
       }

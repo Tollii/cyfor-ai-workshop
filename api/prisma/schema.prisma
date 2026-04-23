@@ -8,10 +8,24 @@ datasource db {
 }
 
 model Item {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  type        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String?
+  type         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  itemId    Int
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  startAt   DateTime
+  endAt     DateTime
+  purpose   String
+  notes     String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

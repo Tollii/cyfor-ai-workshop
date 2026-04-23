@@ -57,6 +57,136 @@ const ItemParamsSchema = z.object({
   })
 }).openapi('ItemParams')
 
+const ReservationStatusSchema = z.enum(['pending', 'confirmed', 'cancelled'])
+
+const ReservationSchema = z.object({
+  id: z.number().int().openapi({ example: 1 }),
+  itemId: z.number().int().openapi({ example: 1 }),
+  startAt: z.string().datetime().openapi({ example: '2024-06-01T08:00:00.000Z' }),
+  endAt: z.string().datetime().openapi({ example: '2024-06-01T10:00:00.000Z' }),
+  purpose: z.string().min(1).max(255).openapi({ example: 'Team meeting' }),
+  notes: z.string().max(500).nullable().openapi({ example: 'Please set up projector' }),
+  status: ReservationStatusSchema.openapi({ example: 'pending' }),
+  createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+  updatedAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' })
+}).openapi('Reservation')
+
+const ReservationListResponseSchema = z.object({
+  reservations: z.array(ReservationSchema)
+}).openapi('ReservationListResponse')
+
+const CreateReservationSchema = z.object({
+  startAt: z.string().datetime().openapi({ example: '2024-06-01T08:00:00.000Z' }),
+  endAt: z.string().datetime().openapi({ example: '2024-06-01T10:00:00.000Z' }),
+  purpose: z.string().trim().min(1).max(255).openapi({ example: 'Team meeting' }),
+  notes: z.string().trim().max(500).optional().openapi({ example: 'Please set up projector' })
+}).openapi('CreateReservation')
+
+const UpdateReservationSchema = z.object({
+  status: ReservationStatusSchema.openapi({ example: 'confirmed' })
+}).openapi('UpdateReservation')
+
+const ReservationParamsSchema = z.object({
+  id: z.coerce.number().int().positive().openapi({
+    param: {
+      name: 'id',
+      in: 'path'
+    },
+    example: 1
+  })
+}).openapi('ReservationParams')
+
+const listReservationsRoute = createRoute({
+  method: 'get',
+  path: '/items/{id}/reservations',
+  tags: ['Reservations'],
+  request: {
+    params: ItemParamsSchema
+  },
+  responses: {
+    200: {
+      description: 'List reservations for an item',
+      content: {
+        'application/json': {
+          schema: ReservationListResponseSchema
+        }
+      }
+    },
+    404: {
+      description: 'Item not found'
+    }
+  }
+})
+
+const createReservationRoute = createRoute({
+  method: 'post',
+  path: '/items/{id}/reservations',
+  tags: ['Reservations'],
+  request: {
+    params: ItemParamsSchema,
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: CreateReservationSchema
+        }
+      }
+    }
+  },
+  responses: {
+    201: {
+      description: 'Create a reservation for an item',
+      content: {
+        'application/json': {
+          schema: ReservationSchema
+        }
+      }
+    },
+    400: {
+      description: 'Invalid date range (end must be after start)'
+    },
+    404: {
+      description: 'Item not found'
+    },
+    409: {
+      description: 'Reservation overlaps with an existing active reservation'
+    }
+  }
+})
+
+const updateReservationRoute = createRoute({
+  method: 'patch',
+  path: '/reservations/{id}',
+  tags: ['Reservations'],
+  request: {
+    params: ReservationParamsSchema,
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: UpdateReservationSchema
+        }
+      }
+    }
+  },
+  responses: {
+    200: {
+      description: 'Update reservation status',
+      content: {
+        'application/json': {
+          schema: ReservationSchema
+        }
+      }
+    },
+    404: {
+      description: 'Reservation not found'
+    },
+    409: {
+      description: 'Cannot cancel an already-cancelled reservation'
+    }
+  }
+})
+
 const rootRoute = createRoute({
   method: 'get',
   path: '/',
@@ -187,6 +317,18 @@ const toItemResponse = (item: { id: number; title: string; description: string |
   updatedAt: item.updatedAt.toISOString()
 })
 
+const toReservationResponse = (r: { id: number; itemId: number; startAt: Date; endAt: Date; purpose: string; notes: string | null; status: string; createdAt: Date; updatedAt: Date }) => ({
+  id: r.id,
+  itemId: r.itemId,
+  startAt: r.startAt.toISOString(),
+  endAt: r.endAt.toISOString(),
+  purpose: r.purpose,
+  notes: r.notes,
+  status: r.status as 'pending' | 'confirmed' | 'cancelled',
+  createdAt: r.createdAt.toISOString(),
+  updatedAt: r.updatedAt.toISOString()
+})
+
 const defaultCorsOrigins = ['http://localhost:4173', 'http://localhost:5173']
 const configuredCorsOrigins = process.env.CORS_ORIGIN
   ?.split(',')
@@ -280,6 +422,93 @@ app.openapi(updateItemRoute, async (c) => {
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
       return c.json({ error: 'Item not found' }, 404)
+    }
+    throw e
+  }
+})
+
+app.openapi(listReservationsRoute, async (c) => {
+  const { id } = c.req.valid('param')
+
+  const item = await prisma.item.findUnique({ where: { id } })
+  if (!item) {
+    return c.json({ error: 'Item not found' }, 404)
+  }
+
+  const reservations = await prisma.reservation.findMany({
+    where: { itemId: id },
+    orderBy: { startAt: 'asc' }
+  })
+
+  return c.json({ reservations: reservations.map(toReservationResponse) }, 200)
+})
+
+app.openapi(createReservationRoute, async (c) => {
+  const { id } = c.req.valid('param')
+  const { startAt, endAt, purpose, notes } = c.req.valid('json')
+
+  const start = new Date(startAt)
+  const end = new Date(endAt)
+
+  if (end <= start) {
+    return c.json({ error: 'End date/time must be after start date/time' }, 400)
+  }
+
+  const item = await prisma.item.findUnique({ where: { id } })
+  if (!item) {
+    return c.json({ error: 'Item not found' }, 404)
+  }
+
+  const overlap = await prisma.reservation.findFirst({
+    where: {
+      itemId: id,
+      status: { in: ['pending', 'confirmed'] },
+      startAt: { lt: end },
+      endAt: { gt: start }
+    }
+  })
+
+  if (overlap) {
+    return c.json({ error: 'Reservation overlaps with an existing active reservation' }, 409)
+  }
+
+  const reservation = await prisma.reservation.create({
+    data: {
+      itemId: id,
+      startAt: start,
+      endAt: end,
+      purpose,
+      notes: notes ?? null,
+      status: 'pending'
+    }
+  })
+
+  return c.json(toReservationResponse(reservation), 201)
+})
+
+app.openapi(updateReservationRoute, async (c) => {
+  const { id } = c.req.valid('param')
+  const { status } = c.req.valid('json')
+
+  try {
+    const existing = await prisma.reservation.findUnique({ where: { id } })
+    if (!existing) {
+      return c.json({ error: 'Reservation not found' }, 404)
+    }
+
+    if (existing.status === 'cancelled' && status === 'cancelled') {
+      return c.json({ error: 'Reservation is already cancelled' }, 409)
+    }
+
+    const reservation = await prisma.reservation.update({
+      where: { id },
+      data: { status }
+    })
+
+    return c.json(toReservationResponse(reservation), 200)
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return c.json({ error: 'Reservation not found' }, 404)
     }
     throw e
   }
