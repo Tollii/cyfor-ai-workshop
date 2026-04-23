@@ -35,6 +35,7 @@ function ItemReservations({ item }: { item: Item }) {
   const [endAt, setEndAt] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const refreshReservations = () =>
     queryClient.invalidateQueries({ queryKey: getGetItemsIdReservationsQueryKey(item.id) });
@@ -77,6 +78,10 @@ function ItemReservations({ item }: { item: Item }) {
   };
 
   const reservations = reservationsQuery.data?.reservations ?? [];
+  const filteredReservations =
+    statusFilter === "all"
+      ? reservations
+      : reservations.filter((r) => r.status === statusFilter);
 
   return (
     <div className="mt-2 border-t pt-3 space-y-3" style={{ borderColor: "#f5f2ed" }}>
@@ -141,14 +146,41 @@ function ItemReservations({ item }: { item: Item }) {
         </button>
       </form>
 
+      {/* Status filter */}
+      {!reservationsQuery.isPending && reservations.length > 0 && (
+        <div className="flex gap-1 flex-wrap">
+          {(["all", "pending", "confirmed", "cancelled"] as const).map((key) => {
+            const label = key === "all" ? "Alle" : (STATUS_LABELS[key] ?? key);
+            const isActive = statusFilter === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setStatusFilter(key)}
+                className="rounded-none border px-2 py-0.5 text-xs font-medium uppercase tracking-wider"
+                style={
+                  isActive
+                    ? { backgroundColor: "#4a5c38", color: "#f5f2ed", borderColor: "#4a5c38" }
+                    : { backgroundColor: "transparent", color: "#4a5c38", borderColor: "#c8b99a" }
+                }
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Existing reservations */}
       {reservationsQuery.isPending ? (
         <p className="text-xs" style={{ color: "#4a5c38" }}>Laster reservasjoner...</p>
       ) : reservations.length === 0 ? (
         <p className="text-xs font-light" style={{ color: "#4a5c38" }}>Ingen reservasjoner ennå.</p>
+      ) : filteredReservations.length === 0 ? (
+        <p className="text-xs font-light" style={{ color: "#4a5c38" }}>Ingen reservasjoner matcher filteret.</p>
       ) : (
         <ul className="space-y-2">
-          {reservations.map((r) => {
+          {filteredReservations.map((r) => {
             const colors = STATUS_COLORS[r.status] ?? STATUS_COLORS.pending;
             return (
               <li key={r.id} className="flex items-start justify-between gap-2 rounded-none p-2" style={{ backgroundColor: "#f5f2ed" }}>
