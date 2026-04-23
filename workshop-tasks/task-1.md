@@ -59,6 +59,20 @@ Implement a small but meaningful resource-management feature end-to-end.
 - updated values should persist after a refresh
 - choose sensible validation and naming based on the existing code style
 
+## Stretch goal
+
+If you finish early, document the project in the GitHub wiki.
+
+Keep it short and practical. Focus on helping a new contributor quickly understand:
+
+- what the project is
+- how the repository is structured
+- how to run the app locally
+- where the API and frontend live
+- where the workshop tasks/issues fit in
+
+The goal is to create a useful landing page in GitHub, not to duplicate every README in full.
+
 ## Done when
 
 - there is one GitHub issue for every part in every `workshop-tasks/task-*.md` file
