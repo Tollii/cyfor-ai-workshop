@@ -11,16 +11,6 @@ This repository is a small npm workspaces monorepo for a workshop application.
 
 The root workspace manages `api` and `web`. Most application changes should happen in one of those two folders.
 
-## Prerequisites
-
-- Node.js 20+
-- npm 10+
-
-Install dependencies from the repository root:
-
-```bash
-npm install
-```
 
 ## Common commands
 
@@ -56,37 +46,7 @@ cd slides
 npx serve . -l 3030
 ```
 
-## Architecture notes
-
-### API
-
-- Entry point: `api/src/index.ts`
-- Main route and OpenAPI definitions: `api/src/app.ts`
-- Database schema: `api/prisma/schema.prisma`
-- SQLite database file: `api/data/workshop.db`
-- OpenAPI export script: `api/scripts/export-openapi.ts`
-
-The API serves:
-
-- `GET /`
-- `GET /health`
-- `GET /items`
-- `POST /items`
-- `PATCH /items/{id}`
-- `DELETE /items/{id}`
-- `GET /openapi.json`
-
 Prisma client generation and schema sync are part of the API startup flow. Deleting `api/data/workshop.db` and restarting the API recreates the local database.
-
-### Web
-
-- App entry point: `web/src/App.tsx`
-- API client barrel: `web/src/api/index.ts`
-- Custom Orval HTTP client: `web/src/api/client.ts`
-- Generated hooks: `web/src/api/generated/hooks.ts`
-- Orval config: `web/orval.config.ts`
-
-The frontend expects the API locally and proxies `/api` requests during development.
 
 ## Generated files and edit boundaries
 
@@ -130,18 +90,6 @@ npm run build --workspace web
 - Override the API port with `API_PORT` when needed.
 - Set `CORS_ORIGIN` to a comma-separated allowlist if the frontend is hosted separately from the API.
 - Set `VITE_API_BASE_URL` for a built frontend that should call a non-default API origin.
-
-## Project skills
-
-Reusable, project-local skills live in `.agents/skills/` and back the delivery loop
-`triage → plan → implement → PR → review → merge`. See `.agents/skills/README.md` for the index.
-
-- `ship` — orchestrator that runs an issue through the whole loop, delegating each stage to a sub-agent.
-- `refine-issue` — turn a vague issue into an implementation-ready brief.
-- `triage-issue` — confirm scope/risk and post triage back to the issue.
-- `plan-implementation` — post a plan to the issue, then auto-start low-risk work or pause for a human.
-- `review-pr` — review the real GitHub PR against project standards.
-- `write-pr` — open a small PR that closes the source issue.
 
 ## Practical guidance for agents
 
