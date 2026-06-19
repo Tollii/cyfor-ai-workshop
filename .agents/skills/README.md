@@ -8,6 +8,7 @@ pick issue → triage → plan → implement → open PR → review PR → human
 
 | Skill | Stage | Writes to GitHub? | Summary |
 | --- | --- | --- | --- |
+| [`ship`](ship/SKILL.md) | whole loop | via stage skills | Orchestrator: drives an issue through every stage below, delegating each stage to a sub-agent and pausing at human control points. |
 | [`refine-issue`](refine-issue/SKILL.md) | before triage | yes (issue) | Turn a vague issue/requirement into an implementation-ready brief; asks targeted questions when ambiguous. |
 | [`triage-issue`](triage-issue/SKILL.md) | triage | yes (issue comment) | Confirm scope/assumptions/acceptance criteria, assess risk, recommend ready / needs-refinement / blocked. |
 | [`plan-implementation`](plan-implementation/SKILL.md) | plan + implement | yes (issue comment) | Write a short plan, **post it to the issue**, then **auto-start implementation when low-risk**, else pause for a human. |

@@ -136,6 +136,7 @@ npm run build --workspace web
 Reusable, project-local skills live in `.agents/skills/` and back the delivery loop
 `triage → plan → implement → PR → review → merge`. See `.agents/skills/README.md` for the index.
 
+- `ship` — orchestrator that runs an issue through the whole loop, delegating each stage to a sub-agent.
 - `refine-issue` — turn a vague issue into an implementation-ready brief.
 - `triage-issue` — confirm scope/risk and post triage back to the issue.
 - `plan-implementation` — post a plan to the issue, then auto-start low-risk work or pause for a human.
