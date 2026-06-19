@@ -29,12 +29,22 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   cancelled: { bg: "#f9fafb", text: "#6b7280" },
 };
 
+type ReservationStatusFilter = "all" | "pending" | "confirmed" | "cancelled";
+
+const RESERVATION_STATUS_FILTER_OPTIONS: { value: ReservationStatusFilter; label: string }[] = [
+  { value: "all", label: "Alle" },
+  { value: "pending", label: "Venter" },
+  { value: "confirmed", label: "Bekreftede" },
+  { value: "cancelled", label: "Kansellerte" },
+];
+
 function ItemReservations({ item }: { item: Item }) {
   const queryClient = useQueryClient();
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ReservationStatusFilter>("all");
 
   const refreshReservations = () =>
     queryClient.invalidateQueries({ queryKey: getGetItemsIdReservationsQueryKey(item.id) });
@@ -77,6 +87,10 @@ function ItemReservations({ item }: { item: Item }) {
   };
 
   const reservations = reservationsQuery.data?.reservations ?? [];
+  const filteredReservations =
+    statusFilter === "all"
+      ? reservations
+      : reservations.filter((reservation) => reservation.status === statusFilter);
 
   return (
     <div className="mt-2 border-t pt-3 space-y-3" style={{ borderColor: "#f5f2ed" }}>
@@ -142,13 +156,39 @@ function ItemReservations({ item }: { item: Item }) {
       </form>
 
       {/* Existing reservations */}
+      {!reservationsQuery.isPending ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <label
+            htmlFor={`reservation-status-filter-${item.id}`}
+            className="text-xs font-medium"
+            style={{ color: "#4a5c38" }}
+          >
+            Statusfilter
+          </label>
+          <select
+            id={`reservation-status-filter-${item.id}`}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as ReservationStatusFilter)}
+            className="rounded-none border bg-transparent px-2 py-1 text-xs outline-none"
+            style={{ borderColor: "#c8b99a", color: "#1c2212" }}
+          >
+            {RESERVATION_STATUS_FILTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       {reservationsQuery.isPending ? (
         <p className="text-xs" style={{ color: "#4a5c38" }}>Laster reservasjoner...</p>
       ) : reservations.length === 0 ? (
         <p className="text-xs font-light" style={{ color: "#4a5c38" }}>Ingen reservasjoner ennå.</p>
+      ) : filteredReservations.length === 0 ? (
+        <p className="text-xs font-light" style={{ color: "#4a5c38" }}>Ingen reservasjoner matcher valgt status.</p>
       ) : (
         <ul className="space-y-2">
-          {reservations.map((r) => {
+          {filteredReservations.map((r) => {
             const colors = STATUS_COLORS[r.status] ?? STATUS_COLORS.pending;
             return (
               <li key={r.id} className="flex items-start justify-between gap-2 rounded-none p-2" style={{ backgroundColor: "#f5f2ed" }}>
