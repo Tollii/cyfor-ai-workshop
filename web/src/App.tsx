@@ -33,7 +33,7 @@ type ReservationStatusFilter = "all" | "pending" | "confirmed" | "cancelled";
 
 const RESERVATION_STATUS_FILTER_OPTIONS: { value: ReservationStatusFilter; label: string }[] = [
   { value: "all", label: "Alle" },
-  { value: "pending", label: "Planlagte" },
+  { value: "pending", label: "Venter" },
   { value: "confirmed", label: "Bekreftede" },
   { value: "cancelled", label: "Kansellerte" },
 ];
