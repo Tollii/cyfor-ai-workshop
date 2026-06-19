@@ -131,6 +131,17 @@ npm run build --workspace web
 - Set `CORS_ORIGIN` to a comma-separated allowlist if the frontend is hosted separately from the API.
 - Set `VITE_API_BASE_URL` for a built frontend that should call a non-default API origin.
 
+## Project skills
+
+Reusable, project-local skills live in `.agents/skills/` and back the delivery loop
+`triage → plan → implement → PR → review → merge`. See `.agents/skills/README.md` for the index.
+
+- `refine-issue` — turn a vague issue into an implementation-ready brief.
+- `triage-issue` — confirm scope/risk and post triage back to the issue.
+- `plan-implementation` — post a plan to the issue, then auto-start low-risk work or pause for a human.
+- `review-pr` — review the real GitHub PR against project standards.
+- `write-pr` — open a small PR that closes the source issue.
+
 ## Practical guidance for agents
 
 - Prefer minimal, local edits that preserve the workshop starter structure.
