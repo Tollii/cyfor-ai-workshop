@@ -42,6 +42,11 @@ export interface HealthResponse {
   status: HealthResponseStatus;
 }
 
+export interface DemoResult {
+  items: number;
+  reservations: number;
+}
+
 export interface Item {
   id: number;
   /**
@@ -332,6 +337,118 @@ export function useGetHealth<TData = Awaited<ReturnType<typeof getHealth>>, TErr
 
 
 
+
+export const postDemoSeed = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customClient<DemoResult>(
+      {url: `/demo/seed`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+export const getPostDemoSeedMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDemoSeed>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postDemoSeed>>, TError,void, TContext> => {
+
+const mutationKey = ['postDemoSeed'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDemoSeed>>, void> = () => {
+
+
+          return  postDemoSeed()
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostDemoSeedMutationResult = NonNullable<Awaited<ReturnType<typeof postDemoSeed>>>
+
+    export type PostDemoSeedMutationError = ErrorType<unknown>
+
+    export const usePostDemoSeed = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDemoSeed>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postDemoSeed>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPostDemoSeedMutationOptions(options), queryClient);
+    }
+
+export const postDemoReset = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customClient<DemoResult>(
+      {url: `/demo/reset`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+export const getPostDemoResetMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDemoReset>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postDemoReset>>, TError,void, TContext> => {
+
+const mutationKey = ['postDemoReset'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDemoReset>>, void> = () => {
+
+
+          return  postDemoReset()
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostDemoResetMutationResult = NonNullable<Awaited<ReturnType<typeof postDemoReset>>>
+
+    export type PostDemoResetMutationError = ErrorType<unknown>
+
+    export const usePostDemoReset = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDemoReset>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postDemoReset>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPostDemoResetMutationOptions(options), queryClient);
+    }
 
 export const getItems = (
     params?: GetItemsParams,

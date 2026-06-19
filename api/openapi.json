@@ -36,6 +36,23 @@
           "status"
         ]
       },
+      "DemoResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "integer",
+            "example": 11
+          },
+          "reservations": {
+            "type": "integer",
+            "example": 14
+          }
+        },
+        "required": [
+          "items",
+          "reservations"
+        ]
+      },
       "Item": {
         "type": "object",
         "properties": {
@@ -304,6 +321,44 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demo/seed": {
+      "post": {
+        "tags": [
+          "Demo"
+        ],
+        "responses": {
+          "200": {
+            "description": "Reset the database and load varied sample data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demo/reset": {
+      "post": {
+        "tags": [
+          "Demo"
+        ],
+        "responses": {
+          "200": {
+            "description": "Remove all items and reservations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoResult"
                 }
               }
             }

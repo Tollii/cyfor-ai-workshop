@@ -2,6 +2,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
 import { Prisma } from '@prisma/client'
 import { prisma } from './db.js'
+import { seedDatabase, resetDatabase } from './seed.js'
 
 const RootResponseSchema = z.object({
   message: z.string(),
@@ -11,6 +12,11 @@ const RootResponseSchema = z.object({
 const HealthResponseSchema = z.object({
   status: z.literal('ok')
 }).openapi('HealthResponse')
+
+const DemoResultSchema = z.object({
+  items: z.number().int().openapi({ example: 11 }),
+  reservations: z.number().int().openapi({ example: 14 })
+}).openapi('DemoResult')
 
 const ItemSchema = z.object({
   id: z.number().int().openapi({ example: 1 }),
@@ -219,6 +225,38 @@ const healthRoute = createRoute({
   }
 })
 
+const seedDemoRoute = createRoute({
+  method: 'post',
+  path: '/demo/seed',
+  tags: ['Demo'],
+  responses: {
+    200: {
+      description: 'Reset the database and load varied sample data',
+      content: {
+        'application/json': {
+          schema: DemoResultSchema
+        }
+      }
+    }
+  }
+})
+
+const resetDemoRoute = createRoute({
+  method: 'post',
+  path: '/demo/reset',
+  tags: ['Demo'],
+  responses: {
+    200: {
+      description: 'Remove all items and reservations',
+      content: {
+        'application/json': {
+          schema: DemoResultSchema
+        }
+      }
+    }
+  }
+})
+
 const listItemsRoute = createRoute({
   method: 'get',
   path: '/items',
@@ -363,6 +401,16 @@ app.openapi(healthRoute, (c) => {
   return c.json({
     status: 'ok'
   }, 200)
+})
+
+app.openapi(seedDemoRoute, async (c) => {
+  const result = await seedDatabase(prisma)
+  return c.json(result, 200)
+})
+
+app.openapi(resetDemoRoute, async (c) => {
+  const result = await resetDatabase(prisma)
+  return c.json(result, 200)
 })
 
 app.openapi(listItemsRoute, async (c) => {

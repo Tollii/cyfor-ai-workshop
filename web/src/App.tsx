@@ -572,6 +572,10 @@ export default function App() {
         style={{ backgroundColor: "#1c2212", color: "#c8b99a" }}
       >
         Forsvaret – Ressursadministrasjon
+        {" · "}
+        <a href="/demo" style={{ color: "#c8b99a", textDecoration: "underline" }}>
+          Demo / testdata
+        </a>
       </footer>
     </div>
   );
